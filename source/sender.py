@@ -194,6 +194,8 @@ class Sender:
 
         self.flibusta_server_pool = await asyncpg.create_pool(user=Config.FLIBUSTA_SERVER_DB_USER, password=Config.FLIBUSTA_SERVER_DB_PASSWORD,
                                                               database=Config.FLIBUSTA_SERVER_DB_DATABASE, host=Config.FLIBUSTA_SERVER_DB_HOST)
+        
+        await FlibustaChannelDB.prepare(None)
 
 
     async def upload(self, book_id: int, file_type: str):
