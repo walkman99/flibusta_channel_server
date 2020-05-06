@@ -17,9 +17,12 @@ class Config:
     DB_PASSWORD: str
 
     FLIBUSTA_SERVER_HOST: str
-    FLIBUSTA_SERVER_USER: str
     FLIBUSTA_SERVER_PORT: str
-    FLIBUSTA_SERVER_PASSWORD: str
+
+    FLIBUSTA_SERVER_DB_HOST: str
+    FLIBUSTA_SERVER_DB_USER: str
+    FLIBUSTA_SERVER_DB_PORT: str
+    FLIBUSTA_SERVER_DB_PASSWORD: str
 
     @classmethod
     def configure(cls):
@@ -38,10 +41,13 @@ class Config:
         cls.DB_PASSWORD = os.environ['DB_PASSWORD']
 
         cls.FLIBUSTA_SERVER_HOST = os.environ.get('FLIBUSTA_SERVER_HOST', 'localhost')
-        cls.FLIBUSTA_SERVER_USER = os.environ.get('FLIBUSTA_SERVER_USER', 'flibusta')
-        cls.FLIBUSTA_SERVER_PORT = os.environ.get('FLIBUSTA_SERVER_PORT', '7080')
-        cls.FLIBUSTA_SERVER_DATABASE = os.environ.get('FLIBUSTA_SERVER_DATABASE', 'flibusta')
-        cls.FLIBUSTA_SERVER_PASSWORD = os.environ['FLIBUSTA_SERVER_PASSWORD']
+        cls.FLIBUSTA_SERVER_PORT = os.environ.get('FLIBUSTA_SERVER_PORT', '7770')
+
+        cls.FLIBUSTA_SERVER_DB_HOST = os.environ.get('FLIBUSTA_SERVER_DB_HOST', 'localhost')
+        cls.FLIBUSTA_SERVER_DB_PORT = os.environ.get('FLIBUSTA_SERVER_DB_PORT', '5432')
+        cls.FLIBUSTA_SERVER_DB_DATABASE = os.environ.get('FLIBUSTA_SERVER_DB_DATABASE', 'flibusta')
+        cls.FLIBUSTA_SERVER_DB_USER = os.environ.get('FLIBUSTA_SERVER_DB_USER', 'flibusta')
+        cls.FLIBUSTA_SERVER_DB_PASSWORD = os.environ['FLIBUSTA_SERVER_DB_PASSWORD']
 
 
 Config.configure()
