@@ -154,7 +154,7 @@ class Book:
 
     @staticmethod
     async def get_by_id(book_id: int) -> "Book":
-        async with request("GET", f"{Config.FLIBUSTA_SERVER_HOST}:{Config.FLIBUSTA_SERVER_PORT}/book/{book_id}") as response:
+        async with request("GET", f"{Config.FLIBUSTA_SERVER_HOST}/book/{book_id}") as response:
             if response.status == 204:
                 raise NoContent
             return Book(await response.json())
@@ -201,7 +201,7 @@ class Sender:
     async def upload(self, book_id: int, file_type: str):
         print(f"Download {book_id} {file_type}...")
         try:
-            async with request("GET", f"{Config.FLIBUSTA_SERVER_HOST}:{Config.FLIBUSTA_SERVER_PORT}/book/download/{book_id}/{file_type}") as response:
+            async with request("GET", f"{Config.FLIBUSTA_SERVER_HOST}/book/download/{book_id}/{file_type}") as response:
                 content = await response.content.read()
         except ATimeoutError:
             return

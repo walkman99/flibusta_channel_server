@@ -41,7 +41,6 @@ class Config:
         cls.DB_PASSWORD = os.environ['DB_PASSWORD']
 
         cls.FLIBUSTA_SERVER_HOST = os.environ.get('FLIBUSTA_SERVER_HOST', 'localhost')
-        cls.FLIBUSTA_SERVER_PORT = os.environ.get('FLIBUSTA_SERVER_PORT', '7770')
 
         cls.FLIBUSTA_SERVER_DB_HOST = os.environ.get('FLIBUSTA_SERVER_DB_HOST', 'localhost')
         cls.FLIBUSTA_SERVER_DB_PORT = os.environ.get('FLIBUSTA_SERVER_DB_PORT', '5432')
