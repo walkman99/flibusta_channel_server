@@ -13,6 +13,10 @@ from config import Config
 from db import FlibustaChannelDB
 
 
+class NoContent(Exception):
+    pass
+
+
 # remove chars that don't accept in Telegram Bot API
 async def normalize(book: "Book", file_type: str) -> str:
     filename = '_'.join([a.short for a in book.authors]) + \
@@ -159,8 +163,8 @@ class Book:
             "GET",
             f"{Config.FLIBUSTA_SERVER_HOST}/book/{book_id}"
         ) as response:
-            if response.status != 200:
-                raise Exception(response.status)
+            if response.status == 204:
+                raise NoContent
             return Book(await response.json())
 
 
@@ -216,6 +220,9 @@ class Sender:
                     f"{book_id}/{file_type}"
                 )
             ) as response:
+                if response.status != 200:
+                    print(f"Download failed {book_id} {file_type}...")
+                    return
                 content = await response.content.read()
         except ATimeoutError:
             return
