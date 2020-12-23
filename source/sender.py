@@ -267,6 +267,7 @@ class Sender:
             if not uploaded_row:
                 await self.tasks.put(self.upload(book_id, file_type))
                 if file_type == "fb2":
+                    await self.tasks.put(self.upload(book_id, "fb2+zip"))
                     await self.tasks.put(self.upload(book_id, "epub"))
                     await self.tasks.put(self.upload(book_id, "mobi"))
 
