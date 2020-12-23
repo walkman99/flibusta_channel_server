@@ -229,7 +229,7 @@ class Sender:
 
         book_info: Book = await Book.get_by_id(book_id)
         data = BytesIO(content)
-        data.name = await normalize(book_info, file_type)
+        data.name = await normalize(book_info, file_type.replace('+', '.'))
 
         print(f"Upload {book_id} {file_type}...")
         client = self.client
