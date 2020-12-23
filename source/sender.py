@@ -260,16 +260,18 @@ class Sender:
             book_id = row["id"]
             file_type = row["file_type"]
 
-            uploaded_row = await FlibustaChannelDB.get_message_id(
-                book_id, file_type
-            )
+            if file_type != 'fb2':
+                types = [file_type]
+            else:
+                types = ['fb2', 'fb2+zip', 'epub', 'mobi']
 
-            if not uploaded_row:
-                await self.tasks.put(self.upload(book_id, file_type))
-                if file_type == "fb2":
-                    await self.tasks.put(self.upload(book_id, "fb2+zip"))
-                    await self.tasks.put(self.upload(book_id, "epub"))
-                    await self.tasks.put(self.upload(book_id, "mobi"))
+            for ttype in types:
+                uploaded_row = await FlibustaChannelDB.get_message_id(
+                    book_id, ttype
+                )
+
+                if not uploaded_row:
+                    await self.tasks.put(self.upload(book_id, ttype))
 
         self.all_task_added = True
 
