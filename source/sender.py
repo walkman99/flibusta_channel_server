@@ -236,7 +236,7 @@ class Sender:
 
         book_msg = None
 
-        if data.size < 30 * 1000000:
+        if data.getbuffer().nbytes < 30 * 1000000:
             try:
                 book_msg = await self.bot.send_document(
                     self.channel_dialog,
