@@ -234,20 +234,33 @@ class Sender:
         print(f"Upload {book_id} {file_type}...")
         client = self.client
 
+        book_msg = None
+
         try:
-            book_msg = await client.send_file(
+            book_msg = await self.bot.send_document(
                 self.channel_dialog,
-                file=data,
+                data,
                 caption=book_info.caption
             )
+        except Exception:
+            pass
 
+        if book_msg is None:
+            try:
+                book_msg = await client.send_file(
+                    self.channel_dialog,
+                    file=data,
+                    caption=book_info.caption
+                )
+            except (errors.FilePartsInvalidError, ValueError):
+                pass
+
+        if book_msg:
             await FlibustaChannelDB.set_message_id(
                 book_id,
                 file_type,
                 book_msg.id
             )
-        except (errors.FilePartsInvalidError, ValueError):
-            pass
 
     async def tasks_add(self):
         book_rows = await self.flibusta_server_pool.fetch(
