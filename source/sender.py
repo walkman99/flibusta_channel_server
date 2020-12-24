@@ -236,14 +236,15 @@ class Sender:
 
         book_msg = None
 
-        try:
-            book_msg = await self.bot.send_document(
-                self.channel_dialog,
-                data,
-                caption=book_info.caption
-            )
-        except Exception:
-            pass
+        if data.size < 30 * 1000000:
+            try:
+                book_msg = await self.bot.send_document(
+                    self.channel_dialog,
+                    data,
+                    caption=book_info.caption
+                )
+            except Exception:
+                pass
 
         if book_msg is None:
             try:
