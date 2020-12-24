@@ -243,6 +243,12 @@ class Sender:
                     data,
                     caption=book_info.caption
                 )
+                
+                await FlibustaChannelDB.set_message_id(
+                    book_id,
+                    file_type,
+                    book_msg.message_id
+                )
             except Exception:
                 pass
 
@@ -253,15 +259,15 @@ class Sender:
                     file=data,
                     caption=book_info.caption
                 )
+                
+                await FlibustaChannelDB.set_message_id(
+                    book_id,
+                    file_type,
+                    book_msg.id
+                )
             except (errors.FilePartsInvalidError, ValueError):
                 pass
-
-        if book_msg:
-            await FlibustaChannelDB.set_message_id(
-                book_id,
-                file_type,
-                book_msg.id
-            )
+            
 
     async def tasks_add(self):
         book_rows = await self.flibusta_server_pool.fetch(
