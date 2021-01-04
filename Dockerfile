@@ -1,6 +1,6 @@
 FROM python:3.9.1
 
-RUN pip install --no-cache-dir pip
+RUN pip install --no-cache-dir -U pip wheel
 
 COPY requirements.txt /usr/src/app/
 

@@ -1,7 +1,7 @@
-wheel
 asyncpg
 aiohttp
 aiogram
 telethon
 telethon-session-sqlalchemy
+psycopg2-binary
 transliterate
