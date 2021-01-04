@@ -3,4 +3,5 @@ asyncpg
 aiohttp
 aiogram
 telethon
+telethon-session-sqlalchemy
 transliterate

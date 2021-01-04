@@ -1,6 +1,8 @@
 from asyncio import run, gather, Queue
 from asyncio import TimeoutError as ATimeoutError
 
+from alchemysession import AlchemySessionContainer
+
 from io import BytesIO
 
 import aiogram
@@ -31,7 +33,7 @@ async def normalize(book: "Book", file_type: str) -> str:
                  ('á', 'a'), (' ', '_')):
         filename = filename.replace(c, r)
 
-    return filename[:64 - len(file_type) - 1] + '.' + file_type
+    return filename[:64 - len(file_type) - 2] + '.' + file_type
 
 
 class Author:
@@ -177,8 +179,14 @@ class Sender:
     flibusta_channel_server_pool: asyncpg.pool.Pool
 
     def __init__(self):
+        container = AlchemySessionContainer(
+            f'postgres://{Config.DB_USER}:{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}'
+        )
+
+        session = container.new_session(Config.SESSION)
+
         self.client = TelegramClient(
-          Config.SESSION, Config.APP_ID, Config.API_HASH
+          session, Config.APP_ID, Config.API_HASH
         )
 
         self.bot = aiogram.Bot(token=Config.BOT_TOKEN)

@@ -1,5 +1,6 @@
 from aiohttp import web
 import asyncpg
+from alchemysession import AlchemySessionContainer
 from telethon import TelegramClient
 
 import platform
@@ -13,7 +14,13 @@ class FlibustaChannel:
 
     @classmethod
     async def prepare(cls):
-        cls.client = TelegramClient(Config.SESSION, Config.APP_ID, Config.API_HASH)
+        container = AlchemySessionContainer(
+            f'postgres://{Config.DB_USER}:{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}'
+        )
+
+        session = container.new_session(Config.SESSION)
+
+        cls.client = TelegramClient(session, Config.APP_ID, Config.API_HASH)
 
         await cls.client.start()
 
