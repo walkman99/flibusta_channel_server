@@ -1,5 +1,5 @@
 from aiohttp import web
-import asyncpg
+
 from alchemysession import AlchemySessionContainer
 from telethon import TelegramClient
 
@@ -15,7 +15,8 @@ class FlibustaChannel:
     @classmethod
     async def prepare(cls):
         container = AlchemySessionContainer(
-            f'postgres://{Config.DB_USER}:{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}'
+            f'postgres://{Config.DB_USER}:'
+            f'{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}'
         )
 
         session = container.new_session(Config.SESSION)
@@ -44,12 +45,13 @@ class FlibustaChannel:
         file_type = request.match_info.get("file_type", None)
 
         message_id = await FlibustaChannelDB.get_message_id(book_id, file_type)
-        
+
         if message_id is None:
             return web.json_response(None)
 
-        return web.json_response({"message_id": message_id, "channel_id": Config.CHANNEL_ID})
-    
+        return web.json_response({"message_id": message_id,
+                                  "channel_id": Config.CHANNEL_ID})
+
     @classmethod
     async def download(cls, request: web.Request):
         book_id = int(request.match_info.get("book_id", None))
@@ -60,7 +62,9 @@ class FlibustaChannel:
         if message_id is None:
             return web.Response(status=204)
 
-        message = await cls.client.get_messages(Config.CHANNEL_ID, ids=[message_id])
+        message = await cls.client.get_messages(
+            Config.CHANNEL_ID, ids=[message_id]
+        )
 
         if message:
             message = message[0]
@@ -89,8 +93,14 @@ if __name__ == "__main__":
     app.on_startup.append(prepare)
 
     app.add_routes((
-        web.get("/set_message_id/{book_id}/{file_type}/{message_id}", FlibustaChannel.set_message_id),
-        web.get("/get_message_id/{book_id}/{file_type}", FlibustaChannel.get_message_id),
+        web.get(
+            "/set_message_id/{book_id}/{file_type}/{message_id}",
+            FlibustaChannel.set_message_id
+        ),
+        web.get(
+            "/get_message_id/{book_id}/{file_type}",
+            FlibustaChannel.get_message_id
+        ),
         web.get("/download/{book_id}/{file_type}", FlibustaChannel.download)
     ))
 

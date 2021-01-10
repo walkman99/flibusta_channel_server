@@ -180,7 +180,8 @@ class Sender:
 
     def __init__(self):
         container = AlchemySessionContainer(
-            f'postgres://{Config.DB_USER}:{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}'
+            f'postgres://{Config.DB_USER}:'
+            f'{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}'
         )
 
         session = container.new_session(Config.SESSION)
@@ -205,7 +206,7 @@ class Sender:
 
         self.channel_dialog = Config.CHANNEL_ID
 
-        self.tasks = Queue()
+        self.tasks = Queue(maxsize=1000)
 
         self.all_task_added = False
 
@@ -226,7 +227,7 @@ class Sender:
                 (
                     f"{Config.FLIBUSTA_SERVER_HOST}/book/download/"
                     f"{book_id}/{file_type}"
-                )
+                ),
             ) as response:
                 if response.status != 200:
                     print(f"Download failed {book_id} {file_type}...")
@@ -244,14 +245,14 @@ class Sender:
 
         book_msg = None
 
-        if data.getbuffer().nbytes < 30 * 1000000:
+        if data.getbuffer().nbytes < 30 * 1_000_000:
             try:
                 book_msg = await self.bot.send_document(
                     self.channel_dialog,
                     data,
                     caption=book_info.caption
                 )
-                
+
                 await FlibustaChannelDB.set_message_id(
                     book_id,
                     file_type,
@@ -267,7 +268,7 @@ class Sender:
                     file=data,
                     caption=book_info.caption
                 )
-                
+
                 await FlibustaChannelDB.set_message_id(
                     book_id,
                     file_type,
@@ -275,7 +276,6 @@ class Sender:
                 )
             except (errors.FilePartsInvalidError, ValueError):
                 pass
-            
 
     async def tasks_add(self):
         book_rows = await self.flibusta_server_pool.fetch(
@@ -320,7 +320,7 @@ async def main():
 
     await gather(
         sender.tasks_add(),
-        *[sender.execute_tasks() for _ in range(10)]
+        *[sender.execute_tasks() for _ in range(20)]
     )
 
 
