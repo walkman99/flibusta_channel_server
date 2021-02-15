@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS messages
     file_type VARCHAR(7) NOT NULL,
     message_id BIGINT NOT NULL
 );
-ALTER TABLE posted_book OWNER TO {Config.DB_USER};
 """)
 
     @classmethod
