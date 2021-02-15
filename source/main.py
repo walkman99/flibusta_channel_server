@@ -53,6 +53,14 @@ class FlibustaChannel:
                                   "channel_id": Config.CHANNEL_ID})
 
     @classmethod
+    async def delete_message_id(cls, request: web.Request):
+        message_id = int(request.match_info.get('message_id', None))
+
+        await FlibustaChannelDB.delete_message_id(message_id)
+
+        return web.Response()
+
+    @classmethod
     async def download(cls, request: web.Request):
         book_id = int(request.match_info.get("book_id", None))
         file_type = request.match_info.get("file_type", None)
@@ -101,7 +109,11 @@ if __name__ == "__main__":
             "/get_message_id/{book_id}/{file_type}",
             FlibustaChannel.get_message_id
         ),
-        web.get("/download/{book_id}/{file_type}", FlibustaChannel.download)
+        web.get("/download/{book_id}/{file_type}", FlibustaChannel.download),
+        web.get(
+            "/delete_message_id/{message_id}",
+            FlibustaChannel.delete_message_id
+        ),
     ))
 
     web.run_app(app, host=Config.HOST, port=Config.PORT)

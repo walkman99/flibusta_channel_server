@@ -30,10 +30,13 @@ async def normalize(book: "Book", file_type: str) -> str:
         filename = filename.replace(c, '')
 
     for c, r in (('—', '-'), ('/', '_'), ('№', 'N'), (' ', '_'), ('–', '-'),
-                 ('á', 'a'), (' ', '_')):
+                 ('á', 'a'), (' ', '_')):  
         filename = filename.replace(c, r)
+        
+    right_part = f'.{str(book.id)}.{file_type}'
 
-    return filename[:64 - len(file_type) - 2] + '.' + file_type
+    return filename[:64 - len(right_part)] + right_part
+
 
 
 class Author:
