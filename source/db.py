@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS messages
 (
     book_id INTEGER NOT NULL,
     file_type VARCHAR(7) NOT NULL,
-    message_id BIGINT NOT NULL
+    message_id BIGINT NOT NULL,
+    PRIMARY KEY (book_id, file_type)
 );
 """)
 
