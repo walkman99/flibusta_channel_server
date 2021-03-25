@@ -53,6 +53,17 @@ class FlibustaChannel:
                                   "channel_id": Config.CHANNEL_ID})
 
     @classmethod
+    async def get_book_by_message_id(cls, request: web.Request):
+        message_id = int(request.match_info.get("message_id", None))
+
+        book_id = await FlibustaChannelDB.get_message_id(message_id)
+
+        if book_id is None:
+            return web.json_response(None)
+
+        return web.json_response({"book_id": book_id})
+
+    @classmethod
     async def delete_message_id(cls, request: web.Request):
         message_id = int(request.match_info.get('message_id', None))
 
@@ -114,6 +125,10 @@ if __name__ == "__main__":
             "/delete_message_id/{message_id}",
             FlibustaChannel.delete_message_id
         ),
+        web.get(
+            "/get_book_by_message_id/{message_id}/",
+            FlibustaChannel.get_book_by_message_id
+        )
     ))
 
     web.run_app(app, host=Config.HOST, port=Config.PORT)
