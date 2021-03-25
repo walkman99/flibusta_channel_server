@@ -56,7 +56,7 @@ class FlibustaChannel:
     async def get_book_by_message_id(cls, request: web.Request):
         message_id = int(request.match_info.get("message_id", None))
 
-        book_id = await FlibustaChannelDB.get_message_id(message_id)
+        book_id = await FlibustaChannelDB.get_book_by_message_id(message_id)
 
         if book_id is None:
             return web.json_response(None)
