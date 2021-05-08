@@ -6,7 +6,7 @@ from alchemysession import AlchemySessionContainer
 from io import BytesIO
 
 import aiogram
-from aiohttp import request
+from aiohttp import request, ClientSession, ClientTimeout
 from telethon import TelegramClient, errors
 import transliterate
 import asyncpg
@@ -30,9 +30,9 @@ async def normalize(book: "Book", file_type: str) -> str:
         filename = filename.replace(c, '')
 
     for c, r in (('—', '-'), ('/', '_'), ('№', 'N'), (' ', '_'), ('–', '-'),
-                 ('á', 'a'), (' ', '_')):  
+                 ('á', 'a'), (' ', '_')):
         filename = filename.replace(c, r)
-        
+
     right_part = f'.{str(book.id)}.{file_type}'
 
     return filename[:64 - len(right_part)] + right_part
@@ -224,19 +224,20 @@ class Sender:
 
     async def upload(self, book_id: int, file_type: str):
         print(f"Download {book_id} {file_type}...")
+
+        timeout = ClientTimeout(total=20 * 60)
         try:
-            async with request(
-                "GET",
-                (
+            async with ClientSession(timeout=timeout) as session:
+                async with session.get(
                     f"{Config.FLIBUSTA_SERVER_HOST}/book/download/"
                     f"{book_id}/{file_type}"
-                ),
-            ) as response:
-                if response.status != 200:
-                    print(f"Download failed {book_id} {file_type}...")
-                    return
-                content = await response.content.read()
+                ) as response:
+                    if response.status != 200:
+                        print(f"Download failed {book_id} {file_type}...")
+                        return
+                    content = await response.content.read()
         except ATimeoutError:
+            print(f"Timeout {book_id} {file_type}!")
             return
 
         book_info: Book = await Book.get_by_id(book_id)
