@@ -324,7 +324,7 @@ async def main():
 
     await gather(
         sender.tasks_add(),
-        *[sender.execute_tasks() for _ in range(20)]
+        *[sender.execute_tasks() for _ in range(5)]
     )
 
 
