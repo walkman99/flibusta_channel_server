@@ -1,4 +1,4 @@
-from asyncio import run, gather, Queue
+from asyncio import run, gather, PriorityQueue
 from asyncio import TimeoutError as ATimeoutError
 
 from alchemysession import AlchemySessionContainer
@@ -209,7 +209,7 @@ class Sender:
 
         self.channel_dialog = Config.CHANNEL_ID
 
-        self.tasks = Queue(maxsize=1000)
+        self.tasks = PriorityQueue(maxsize=50)
 
         self.all_task_added = False
 
@@ -303,13 +303,16 @@ class Sender:
                 )
 
                 if not uploaded_row:
-                    await self.tasks.put(self.upload(book_id, ttype))
+                    await self.tasks.put((
+                        0 if ttype == 'fb2' else 1,
+                        self.upload(book_id, ttype)
+                    ))
 
         self.all_task_added = True
 
     async def execute_tasks(self):
         while not self.all_task_added or not self.tasks.empty():
-            task = await self.tasks.get()
+            priority, task = await self.tasks.get()
 
             try:
                 await task
