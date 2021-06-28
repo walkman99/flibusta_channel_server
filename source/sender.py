@@ -176,7 +176,7 @@ class Book:
 class Sender:
     client: TelegramClient
     bot: aiogram.Bot
-    tasks: Queue
+    tasks: PriorityQueue
     all_task_added: bool
 
     flibusta_channel_server_pool: asyncpg.pool.Pool
