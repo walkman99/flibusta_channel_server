@@ -11,12 +11,21 @@ from telethon import TelegramClient, errors
 import transliterate
 import asyncpg
 
+from dataclasses import dataclass, field
+from typing import Any
+
 from config import Config
 from db import FlibustaChannelDB
 
 
 class NoContent(Exception):
     pass
+
+
+@dataclass(order=True)
+class PrioritizedItem:
+    priority: int
+    item: Any=field(compare=False)
 
 
 # remove chars that don't accept in Telegram Bot API
@@ -303,19 +312,21 @@ class Sender:
                 )
 
                 if not uploaded_row:
-                    await self.tasks.put((
-                        0 if ttype == 'fb2' else 1,
-                        self.upload(book_id, ttype)
-                    ))
+                    await self.tasks.put(
+                        PrioritizedItem(
+                            0 if ttype == 'fb2' else 1,
+                            self.upload(book_id, ttype)
+                        )
+                    )
 
         self.all_task_added = True
 
     async def execute_tasks(self):
         while not self.all_task_added or not self.tasks.empty():
-            priority, task = await self.tasks.get()
+            task: PrioritizedItem = await self.tasks.get()
 
             try:
-                await task
+                await task.item
             except Exception as e:
                 print(e)
 
