@@ -1,4 +1,4 @@
-FROM python:3.9.1
+FROM python:3.9.5
 
 RUN pip install --no-cache-dir -U pip wheel
 

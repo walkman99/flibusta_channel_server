@@ -192,7 +192,7 @@ class Sender:
 
     def __init__(self):
         container = AlchemySessionContainer(
-            f'postgres://{Config.DB_USER}:'
+            f'postgresql://{Config.DB_USER}:'
             f'{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}'
         )
 
