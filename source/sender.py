@@ -193,8 +193,11 @@ class Sender:
     def __init__(self):
         container = AlchemySessionContainer(
             f'postgresql://{Config.DB_USER}:'
-            f'{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}'
+            f'{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}',
+            manage_tables=False,
         )
+
+        # container.check_and_upgrade_database()
 
         session = container.new_session(Config.SESSION)
 
