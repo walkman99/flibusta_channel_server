@@ -218,7 +218,7 @@ class Sender:
 
         self.channel_dialog = Config.CHANNEL_ID
 
-        self.tasks = PriorityQueue(maxsize=50)
+        self.tasks = PriorityQueue(maxsize=10_000)
 
         self.all_task_added = False
 
@@ -231,10 +231,25 @@ class Sender:
 
         await FlibustaChannelDB.prepare(None)
 
-    async def upload(self, book_id: int, file_type: str):
+    async def upload(
+        self, book_id: int, file_type: str, retry: int = 0,
+    ):
+        if retry < 0:
+            return
+
+        async def create_retry_task():
+            await self.tasks.put(
+                PrioritizedItem(
+                    0 if file_type == 'fb2' else 1,
+                    self.upload(
+                        book_id, file_type, retry - 1
+                    )
+                )
+            )
+
         print(f"Download {book_id} {file_type}...")
 
-        timeout = ClientTimeout(total=20 * 60)
+        timeout = ClientTimeout(total=30 * 60)
         try:
             async with ClientSession(timeout=timeout) as session:
                 async with session.get(
@@ -246,6 +261,7 @@ class Sender:
                         return
                     content = await response.content.read()
         except ATimeoutError:
+            await create_retry_task()
             print(f"Timeout {book_id} {file_type}!")
             return
 
@@ -274,21 +290,23 @@ class Sender:
             except Exception:
                 pass
 
-        if book_msg is None:
-            try:
-                book_msg = await client.send_file(
-                    self.channel_dialog,
-                    file=data,
-                    caption=book_info.caption
-                )
+        if book_msg is not None:
+            return
 
-                await FlibustaChannelDB.set_message_id(
-                    book_id,
-                    file_type,
-                    book_msg.id
-                )
-            except (errors.FilePartsInvalidError, ValueError):
-                pass
+        try:
+            book_msg = await client.send_file(
+                self.channel_dialog,
+                file=data,
+                caption=book_info.caption
+            )
+
+            await FlibustaChannelDB.set_message_id(
+                book_id,
+                file_type,
+                book_msg.id
+            )
+        except (errors.FilePartsInvalidError, ValueError):
+            await create_retry_task()
 
     async def tasks_add(self):
         book_rows = await self.flibusta_server_pool.fetch(
@@ -338,7 +356,7 @@ async def main():
 
     await gather(
         sender.tasks_add(),
-        *[sender.execute_tasks() for _ in range(5)]
+        *[sender.execute_tasks() for _ in range(10)]
     )
 
 
