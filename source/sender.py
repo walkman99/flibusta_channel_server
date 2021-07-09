@@ -260,6 +260,7 @@ class Sender:
                     f"{book_id}/{file_type}"
                 ) as response:
                     if response.status != 200:
+                        await create_retry_task()
                         print(f"Download failed {book_id} {file_type}...")
                         return
                     content = await response.content.read()
