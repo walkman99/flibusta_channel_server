@@ -15,8 +15,9 @@ class FlibustaChannel:
     @classmethod
     async def prepare(cls):
         container = AlchemySessionContainer(
-            f'postgres://{Config.DB_USER}:'
-            f'{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}'
+            f'postgresql://{Config.DB_USER}:'
+            f'{Config.DB_PASSWORD}@{Config.DB_HOST}/{Config.DB_DATABASE}',
+            manage_tables=False,
         )
 
         session = container.new_session(Config.SESSION)
